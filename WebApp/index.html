@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Feed | Frontend & Backend Integration</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        #news-list article {
+            background: #ffffff;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        #news-list article:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+        }
+        #news-list article h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1a1e21;
+            margin-bottom: 0.5rem;
+        }
+        #news-list article p {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="bg-light py-5">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-9">
+
+                <!-- Başlık ve Butonlar -->
+                <div class="d-flex flex-column flex-md-row md-align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-broadcast fs-3 text-primary"></i>
+                            <h2 class="fw-bold mb-0">Live News Feed</h2>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill ms-2">
+                                Fetch API
+                            </span>
+                        </div>
+                        <p class="text-muted mb-0">Asynchronous data transfer directly from the ASP.NET Core Web API.</p>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-secondary btn-sm px-3" onclick="location.reload();">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                        </button>
+                        <a href="create-news.html" class="btn btn-primary btn-sm px-3 shadow-sm">
+                            <i class="bi bi-plus-lg me-1"></i> New Article
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Haber Listeleme Alanı -->
+                <section id="news">
+                    <div id="news-list">
+                        <!-- Spinner (Yükleniyor) -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted mt-3 mb-0">Connecting to API and loading articles...</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const container = document.getElementById("news-list");
+
+            try {
+                const items = await window.NewsClient.getAllNews();
+
+                if (!items || items.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert alert-info border-0 shadow-sm rounded-4 text-center py-4">
+                            <i class="bi bi-inbox fs-2 d-block mb-2 text-info"></i>
+                            <h6 class="fw-semibold">No news articles found</h6>
+                            <p class="text-muted mb-0 small">The database is currently empty. Try creating a new article!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                window.NewsClient.renderNewsList(container, items);
+            }
+            catch (err) {
+                console.error("Error occurred:", err);
+                container.innerHTML = `
+                    <div class="alert alert-danger border-0 shadow-sm rounded-4 d-flex align-items-center p-3">
+                        <i class="bi bi-exclamation-octagon-fill fs-3 text-danger me-3"></i>
+                        <div>
+                            <div class="fw-semibold">Failed to fetch news</div>
+                            <div class="small text-danger-emphasis">Unable to reach the backend API. Ensure your Web API is running on localhost:7185.</div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
